@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <form action="" method="POST">
+    {{ form.hidden_tag() }}
+    {{ form.name.label }}
+    {{ form.name }}
+    {{ form.submit }}
+  </form>
+  <br>
+  <div>
+    {% if names %}
+      <ul>
+      {% for name in names %}
+        <li>{{ name }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+{% endblock %}

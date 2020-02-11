@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  {% if title %}
+      <title>{{ title }}</title>
+  {% else %}
+      <title>Index Page</title>
+  {% endif %}
+</head>
+<body>
+  <div>
+    <h1>Welcome...</h1>
+  </div>
+
+  {% block content %}{% endblock content %}
+    
+</body>
+</html>
