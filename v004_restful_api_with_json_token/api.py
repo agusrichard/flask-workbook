@@ -160,5 +160,82 @@ def login():
     return make_response('Could not verify', 401, 'Basic Realm="Login Required!"')
 
 
+@app.route('/todo', methods=['GET'])
+@token_required
+def get_all_todos(current_user):
+    todos = Todo.query.filter_by(user_id=current_user.id).all()
+    output = []
+
+    for todo in todos:
+        todo_data = {}
+
+        todo_data['id'] = todo.id
+        todo_data['text'] = todo.text
+        todo_data['complete'] = todo.complete
+
+        output.append(todo_data)
+
+    return jsonify({
+        'message': 'Success to get all todos',
+        'todos': output
+    })
+
+@app.route('/todo/<todo_id>', methods=['GET'])
+@token_required
+def get_one_todo(current_user, todo_id):
+    todo = Todo.query.filter_by(user_id=current_user.id, id=todo_id).first()
+
+    if not todo:
+        return jsonify({'message': 'Todo not found!'}), 404
+
+    output = {}
+    output['id'] = todo.id
+    output['text'] = todo.text
+    output['complete'] = todo.complete
+    output['user_id'] = todo.user_id
+
+    return jsonify({
+        'message': 'Success to get todo',
+        'todo': output
+    })
+
+@app.route('/todo', methods=['POST'])
+@token_required
+def create_todo(current_user):
+    data = request.get_json()
+    new_todo = Todo(text=data['text'], complete=False, user_id=current_user.id)
+    db.session.add(new_todo)
+    db.session.commit()
+
+    return jsonify({'message': 'Todo successfully created'})
+
+@app.route('/todo/<todo_id>', methods=['PUT'])
+@token_required
+def complete_todo(current_user, todo_id):
+    todo = Todo.query.filter_by(id=todo_id, user_id=current_user.id).first()
+
+    if not todo:
+        return jsonify({'message': 'Todo not found'}), 404
+
+    todo.complete = True
+    db.session.add(todo)
+    db.session.commit()
+
+    return jsonify({'message': 'Success to complete todo'})
+
+@app.route('/todo/<todo_id>', methods=['DELETE'])
+@token_required
+def delete_todo(current_user, todo_id):
+    todo = Todo.query.filter_by(id=todo_id, user_id=current_user.id).first()
+
+    if not todo:
+        return jsonify({'message': 'Todo not found'}), 404
+
+    db.session.delete(todo)
+    db.session.commit()
+
+    return jsonify({'message': 'Todo has been deleted!'})
+
+
 if __name__ == '__main__':
     app.run(debug=True)
