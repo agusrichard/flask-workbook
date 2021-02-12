@@ -1,18 +1,15 @@
 FROM ubuntu:20.04
 
-MAINTAINER Agus Richard "agus.richard21@gmail.com"
+LABEL agusrichard "agus.richard21@gmail.com"
 
-RUN apt-get update -y && \
-    apt-get install -y python3-pip python-dev
+RUN apt-get update -y && apt-get install -y python3-pip python3-dev
 
 COPY ./requirements.txt /app/requirements.txt
 
 WORKDIR /app
 
-RUN pip3 install -r /app/requirements.txt
+RUN pip3 install -r requirements.txt
 
 COPY . /app
 
-RUN export FLASK_APP=app.py && export FLASK_ENV=development
-
-CMD [ "python", "./app.py" ]
+CMD ["python3", "./app.py"]
