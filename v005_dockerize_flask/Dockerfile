@@ -15,4 +15,4 @@ COPY . /app
 
 RUN export FLASK_APP=app.py && export FLASK_ENV=development
 
-ENTRYPOINT ["flask", "run"]
+CMD [ "python", "./app.py" ]
