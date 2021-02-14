@@ -2,7 +2,7 @@ FROM python:3.8-alpine
 
 LABEL agusrichard "agus.richard21@gmail.com"
 
-WORKDIR app
+WORKDIR /app
 
 COPY . /app
 
