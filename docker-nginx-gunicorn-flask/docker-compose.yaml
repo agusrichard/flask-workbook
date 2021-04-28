@@ -11,18 +11,37 @@ services:
     networks:
       - my-network
     depends_on:
-      - flask-app
-  flask-app:
-    build: .
-    container_name: flask
-    command: flask run --host=0.0.0.0 --port=8000
+      - service-one
+  service-one:
+    build:
+      context: ./
+      dockerfile: ./service_one/Dockerfile
+    container_name: flask-service-one
+    command: flask run --host=0.0.0.0 --port=3000
     environment:
       - FLASK_ENV=development
-      - FLASK_APP=main.py
+      - FLASK_APP=./service_one/main.py
     ports:
-      - 8000:8000
+      - 3000:3000
     volumes:
-      - ./:/app
+      - ./:/app/service_one
+    networks:
+      my-network:
+        aliases:
+          - flask-app-network
+  service-two:
+    build:
+      context: ./
+      dockerfile: ./service_two/Dockerfile
+    container_name: flask-service-two
+    command: flask run --host=0.0.0.0 --port=5000
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=./service_two/main.py
+    ports:
+      - 5000:5000
+    volumes:
+      - ./:/app/service_two
     networks:
       my-network:
         aliases:
