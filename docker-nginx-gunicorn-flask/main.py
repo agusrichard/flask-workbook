@@ -5,4 +5,14 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
+    return 'Hello World'
+
+
+@app.route('/sekar')
+def sekar():
+    return 'Sekardayu Hana Pradiani'
+
+
+@app.route('/saskia')
+def saskia():
     return 'Saskia Nurul Azhima'
