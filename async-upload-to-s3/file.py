@@ -2,18 +2,12 @@ import io
 import boto3
 import base64
 from flask import Flask
+from typing import Callable
 from datetime import datetime
-from typing import Callable, Dict
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import FileStorage
 
-from app import app
-
-s3 = boto3.client(
-    "s3",
-    aws_access_key_id=app.config["AWS_ACCESS_KEY"],
-    aws_secret_access_key=app.config["AWS_ACCESS_SECRET"],
-)
+from models import File
 
 
 def renaming_file(filename: str):
@@ -34,38 +28,41 @@ def renaming_file(filename: str):
 
     return updated_filename
 
-def process_files_to_streams(files: Dict[str, FileStorage]) -> dict:
-    """
-    Process a file to a base64 string
-    """
-    result = {}
 
-    for key, file in files.items():
-        if file is None or file.filename == "":
-            continue  # skip not required fields/files
-
-        result[key] = {
-            "stream": base64.b64encode(file.stream.read()),
-            "name": file.name,
-            "filename": renaming_file(file.filename),
-            "content_type": file.content_type,
-            "content_length": file.content_length,
-            "headers": {header[0]: header[1] for header in file.headers},
-        }
+def process_file_to_stream(file: FileStorage) -> dict:
+    result = {
+        "stream": base64.b64encode(file.stream.read()),
+        "name": file.name,
+        "filename": renaming_file(file.filename),
+        "content_type": file.content_type,
+        "content_length": file.content_length,
+        "headers": {header[0]: header[1] for header in file.headers},
+    }
 
     return result
 
-def upload_file(data: dict) -> str:
-    data["stream"] = base64.b64decode(data["stream"])
-    data["stream"] = io.BytesIO(data["stream"])
-    file = FileStorage(**data)
 
-    s3.upload_fileobj(
-        file,
-        app.config["S3_BUCKET_NAME"],
-        data["filename"],
-        ExtraArgs={
-            "ContentType": data["content_type"],
-        },
+def create_upload_file(app: Flask) -> Callable:
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=app.config["AWS_ACCESS_KEY"],
+        aws_secret_access_key=app.config["AWS_ACCESS_SECRET"],
     )
-    return f"{app.config['S3_BUCKET_BASE_URL']}/{data['filename']}"
+
+    def upload_file(data: dict) -> str:
+        data["stream"] = base64.b64decode(data["stream"])
+        data["stream"] = io.BytesIO(data["stream"])
+        file = FileStorage(**data)
+
+        print("upload_file File", File)
+        # s3.upload_fileobj(
+        #     file,
+        #     app.config["S3_BUCKET_NAME"],
+        #     data["filename"],
+        #     ExtraArgs={
+        #         "ContentType": data["content_type"],
+        #     },
+        # )
+        return f"{app.config['S3_BUCKET_BASE_URL']}/{data['filename']}"
+
+    return upload_file
