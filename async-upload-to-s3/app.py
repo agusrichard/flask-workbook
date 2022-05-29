@@ -6,32 +6,23 @@ from config import Config
 db = SQLAlchemy()
 
 app = Flask(__name__)
-app.config.from_object(Config)
+app.config.from_object(Config)  # Set Flask app configuration from Config class
 db = SQLAlchemy(app)
 
 from models import File
 
+# Initialize the database
 with app.app_context():
     db.create_all()
 
-from file import create_upload_file
+from routes import index, normal_upload, async_upload, celery_upload
 
-upload_file = create_upload_file(app)
+app.add_url_rule("/", "index", index, methods=["GET"])
+app.add_url_rule("/normal_upload", "normal_upload", normal_upload, methods=["POST"])
+app.add_url_rule("/async_upload", "async_upload", async_upload, methods=["POST"])
+app.add_url_rule("/celery_upload", "celery_upload", celery_upload, methods=["POST"])
 
-from routes import Routes
-
-routes = Routes(upload_file)
-
-app.add_url_rule("/", "index", routes.index, methods=["GET"])
-app.add_url_rule(
-    "/normal_upload", "normal_upload", routes.normal_upload, methods=["POST"]
-)
-app.add_url_rule("/async_upload", "async_upload", routes.async_upload, methods=["POST"])
-app.add_url_rule(
-    "/celery_upload", "celery_upload", routes.celery_upload, methods=["POST"]
-)
-
-
+# Used if you want to play with databse through flask shell
 @app.shell_context_processor
 def make_shell_context():
     return {"db": db, "File": File}
