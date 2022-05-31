@@ -1,13 +1,14 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-from config import Config
+from config import Config, make_celery
 
 db = SQLAlchemy()
 
 app = Flask(__name__)
 app.config.from_object(Config)  # Set Flask app configuration from Config class
 db = SQLAlchemy(app)
+celery = make_celery(app)
 
 from models import File
 

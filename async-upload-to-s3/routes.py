@@ -3,6 +3,7 @@ from http import HTTPStatus
 from threading import Thread
 
 from app import app, db
+from tasks import upload_task
 from models import File, UploadStatus
 from file import process_file_to_stream, upload_file, upload_file_from_stream
 
@@ -63,4 +64,17 @@ def __async_upload(file_id: int, file_dict: dict):
 
 
 def celery_upload():
-    return "Celery upload"
+    try:
+        file = request.files["file"]
+        new_file = File(name=file.filename, upload_status=UploadStatus.PROCESSING)
+        db.session.add(new_file)
+        db.session.commit()
+
+        file_stream = process_file_to_stream(file, True)
+        upload_task.delay(new_file.id, file_stream)
+
+        return "", HTTPStatus.OK
+    except Exception as e:
+        new_file.upload_status = UploadStatus.ERROR
+        db.session.commit()
+        return str(e), HTTPStatus.INTERNAL_SERVER_ERROR

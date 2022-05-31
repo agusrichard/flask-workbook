@@ -33,9 +33,10 @@ def renaming_file(filename: str):
     return updated_filename
 
 
-def process_file_to_stream(file: FileStorage) -> dict:
+def process_file_to_stream(file: FileStorage, to_utf8: bool = False) -> dict:
+    stream = base64.b64encode(file.stream.read())
     result = {
-        "stream": base64.b64encode(file.stream.read()),
+        "stream": stream if not to_utf8 else stream.decode("utf-8"),
         "name": file.name,
         "filename": renaming_file(file.filename),
         "content_type": file.content_type,
