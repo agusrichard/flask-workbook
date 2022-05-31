@@ -5,6 +5,7 @@ from models import File, UploadStatus
 from file import upload_file_from_stream
 
 
+# Task to upload file to S3 using celery
 @celery.task()
 def upload_task(file_id: int, file_dict: dict):
     try:

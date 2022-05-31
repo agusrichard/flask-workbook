@@ -3,7 +3,8 @@ from sqlalchemy import Enum
 
 from app import db
 
-
+# Serves as enum values for upload_status column of files table
+# (either PENDING, PROCESSING, COMPLETE OR ERROR)
 class UploadStatus(enum.Enum):
     PENDING = 1
     PROCESSING = 2

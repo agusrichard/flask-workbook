@@ -13,6 +13,9 @@ def index():
 
 
 def normal_upload():
+    """
+    Uploads a file to S3 synchronously. So user needs to wait until the process is done before doing something else
+    """
     try:
         file = request.files["file"]
         new_file = File(name=file.filename, upload_status=UploadStatus.PROCESSING)
@@ -33,6 +36,11 @@ def normal_upload():
 
 
 def async_upload():
+    """
+    Uploads a file to S3 asynchronously.
+    This function using threading, so the upload process is running on a separate thread.
+    First, the file is processed to bytes stream, then the upload is done asynchronously.
+    """
     try:
         file = request.files["file"]
         new_file = File(name=file.filename, upload_status=UploadStatus.PROCESSING)
@@ -64,6 +72,11 @@ def __async_upload(file_id: int, file_dict: dict):
 
 
 def celery_upload():
+    """
+    Uploads a file to S3 asynchronously using celery.
+    This function using celery, so the upload process is done by celery worker.
+    First, the file is processed to byte64 encoded, then decoded to utf8, at last the upload is done asynchronously.
+    """
     try:
         file = request.files["file"]
         new_file = File(name=file.filename, upload_status=UploadStatus.PROCESSING)

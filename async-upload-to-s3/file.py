@@ -15,6 +15,9 @@ s3 = boto3.client(
 
 
 def renaming_file(filename: str):
+    """
+    Rename a file using its original name (modified) and current timestamp
+    """
     uploaded_date = datetime.utcnow()
 
     if filename is None:
@@ -26,6 +29,8 @@ def renaming_file(filename: str):
 
     updated_filename = splitted[0]
     file_extension = splitted[1]
+
+    # Make sure that filename is secure
     updated_filename = secure_filename(updated_filename.lower())
     updated_filename = f"{uploaded_date.strftime('%Y%m%d%H%M%S')}--{updated_filename}"
     updated_filename = f"{updated_filename}.{file_extension}"
@@ -34,6 +39,10 @@ def renaming_file(filename: str):
 
 
 def process_file_to_stream(file: FileStorage, to_utf8: bool = False) -> dict:
+    """
+    Notice that since celery serializer (json) doesn't take bytes datatype,
+    so, we need to convert it from base64 bytes to utf-8 format.
+    """
     stream = base64.b64encode(file.stream.read())
     result = {
         "stream": stream if not to_utf8 else stream.decode("utf-8"),
@@ -48,6 +57,9 @@ def process_file_to_stream(file: FileStorage, to_utf8: bool = False) -> dict:
 
 
 def upload_file(file: FileStorage) -> str:
+    """
+    Upload file using normal synchronous way
+    """
     s3.upload_fileobj(
         file,
         app.config["S3_BUCKET_NAME"],
@@ -60,6 +72,9 @@ def upload_file(file: FileStorage) -> str:
 
 
 def upload_file_from_stream(data: dict) -> str:
+    """
+    Upload file to S3 by first converting back from base64 encoded bytes/utf-8 to file
+    """
     data["stream"] = base64.b64decode(data["stream"])
     data["stream"] = io.BytesIO(data["stream"])
     file = FileStorage(**data)
