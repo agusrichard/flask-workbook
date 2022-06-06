@@ -15,13 +15,14 @@ This project serves as coding material for this article, so readers can easily l
 - Clone/Download this repository and change directory to this project.
 - Create .env file and put these variables. Certainly you need to provide values to these variables:
   ```text
-  SQLALCHEMY_DATABASE_URI=
-  SQLALCHEMY_TRACK_MODIFICATIONS=
-  AWS_ACCESS_KEY=
-  S3_BUCKET_NAME=
-  S3_BUCKET_BASE_URL=
-  CELERY_BROKER_URL=
-  CELERY_RESULT_BACKEND=
+  SQLALCHEMY_DATABASE_URI=sqlite:///db.sqlite3
+  SQLALCHEMY_TRACK_MODIFICATIONS=False
+  AWS_ACCESS_KEY=<YOUR_AWS_ACCESS_KEY>
+  AWS_ACCESS_SECRET=<YOUR_AWS_ACCESS_SECRET>
+  S3_BUCKET_NAME=<YOUR_S3_BUCKET_NAME>
+  S3_BUCKET_BASE_URL=<YOUR_S3_BUCKET_BASE_URL>
+  CELERY_BROKER_URL=redis://redis:6379/0
+  CELERY_RESULT_BACKEND=redis://redis:6379/0
   ```
 - Run `docker-compose up` to run and build project's container and related containers.
 - Go to http://0.0.0.0:5000 (default url)
