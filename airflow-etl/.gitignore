@@ -1,4 +1,3 @@
 venv
 logs
 __pycache__
-dag_with_python_operator.py
