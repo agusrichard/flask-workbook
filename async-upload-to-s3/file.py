@@ -7,6 +7,7 @@ from werkzeug.datastructures import FileStorage
 
 from app import app
 
+# Setting up S3 client
 s3 = boto3.client(
     "s3",
     aws_access_key_id=app.config["AWS_ACCESS_KEY"],
