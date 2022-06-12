@@ -15,7 +15,7 @@ s3 = boto3.client(
 )
 
 
-def renaming_file(filename: str):
+def rename_file(filename: str):
     """
     Rename a file using its original name (modified) and current timestamp
     """
@@ -33,7 +33,11 @@ def renaming_file(filename: str):
 
     # Make sure that filename is secure
     updated_filename = secure_filename(updated_filename.lower())
+
+    # Combining filename and timestamp
     updated_filename = f"{uploaded_date.strftime('%Y%m%d%H%M%S')}--{updated_filename}"
+
+    # Combining the updated filename and file extension
     updated_filename = f"{updated_filename}.{file_extension}"
 
     return updated_filename
@@ -41,14 +45,15 @@ def renaming_file(filename: str):
 
 def process_file_to_stream(file: FileStorage, to_utf8: bool = False) -> dict:
     """
-    Notice that since celery serializer (json) doesn't take bytes datatype,
+    Notice that since celery serializer (json) can't take bytes datatype,
     so, we need to convert it from base64 bytes to utf-8 format.
+    But we don't need to do that when using threading
     """
     stream = base64.b64encode(file.stream.read())
     result = {
         "stream": stream if not to_utf8 else stream.decode("utf-8"),
         "name": file.name,
-        "filename": renaming_file(file.filename),
+        "filename": rename_file(file.filename),
         "content_type": file.content_type,
         "content_length": file.content_length,
         "headers": {header[0]: header[1] for header in file.headers},
